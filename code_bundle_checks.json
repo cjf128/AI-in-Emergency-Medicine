@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "notebooks": [
+    "01_data_audit.ipynb",
+    "06_course_comparison.ipynb",
+    "09_neural_and_module_extension.ipynb",
+    "11_batchnorm_dropout_extension.ipynb",
+    "13_residual_factorial_extension.ipynb",
+    "15_neural_task_fusion.ipynb"
+  ],
+  "configuration_files": [
+    "research_protocol.json",
+    "baseline_features.json",
+    "baseline_model_parameters.json",
+    "course_study_run.json",
+    "course_extended_run_20261112.json",
+    "course_batchnorm_run_20261112.json",
+    "course_residual_run_20261113.json",
+    "course_neural_fusion_run_20261113.json"
+  ],
+  "code_cells_syntax_checked": 36,
+  "source_modifications": [
+    "cleared notebook outputs",
+    "replaced local project-root defaults",
+    "removed local figure-QA dependency",
+    "added fresh-submission metadata initializer"
+  ],
+  "existing_prediction_smoke_test": {
+    "status": "passed",
+    "scope": "run portable analysis script in an isolated project root against existing frozen predictions",
+    "cv_summary_sha256": "9f6842d6ef8f73d3828ca4788dd900f9a107d5b656c1fa9bb363297ec7a1c2e4",
+    "test_macro_micro_sha256": "9d3579c15739ca9a649aab060f4896194488a3fa6951f2936c7a6420813918f3"
+  },
+  "small_subset_smoke_test": {
+    "status": "passed",
+    "training_rows": 7000,
+    "supplemental_rows": 1200,
+    "platform_rows": 2000,
+    "steps": [
+      "data audit and processed release",
+      "five-fold classical-model training",
+      "OOF threshold selection",
+      "full fitting",
+      "test probability generation"
+    ],
+    "test_only_changes": "temporary data-count assertions and reduced training parameters",
+    "interpretation": "pipeline smoke test only; outputs are not manuscript results"
+  },
+  "end_to_end_fresh_retraining": "not performed",
+  "data_and_model_files": "not included"
+}

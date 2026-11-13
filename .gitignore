@@ -1,0 +1,14 @@
+data/raw/
+data/processed/
+outputs/
+logs/
+.cache/
+.conda-env/
+.ipynb_checkpoints/
+__pycache__/
+*.pt
+*.joblib
+*.parquet
+*.zip
+.env
+.kaggle/
