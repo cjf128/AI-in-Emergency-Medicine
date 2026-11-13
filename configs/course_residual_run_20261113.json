@@ -1,0 +1,174 @@
+{
+  "version": "residual-factorial-extension-2026-11-13-v1",
+  "run_id": "cf_ml_course_residual_20261113_093146",
+  "parent_run_id": "cf_ml_course_batchnorm_20261112_230705",
+  "user_authorization": "Run all Res combinations with BatchNorm and Dropout on the existing common folds",
+  "targets": [
+    "adverse_outcome",
+    "readmission_30d"
+  ],
+  "models": [
+    "LogisticRegression",
+    "RandomForest",
+    "XGBoost",
+    "LightGBM",
+    "CatBoost",
+    "MLP",
+    "MLP_Dropout",
+    "MultiviewEqual",
+    "TaskSpecificFusion",
+    "MLP_BatchNorm",
+    "MLP_BatchNorm_Dropout",
+    "MLP_Res",
+    "MLP_Dropout_Res",
+    "MLP_BatchNorm_Res",
+    "MLP_BatchNorm_Dropout_Res"
+  ],
+  "feature_count": 93,
+  "categorical_feature_count": 14,
+  "cv": {
+    "folds": 5,
+    "seed": 2026,
+    "inner_folds_for_fusion": 3,
+    "fold_manifest_source": "parent development_folds.parquet",
+    "selection": "mean fold Macro AUC; exact tie then lower mean training seconds"
+  },
+  "neural": {
+    "hidden_layers": [
+      128,
+      64
+    ],
+    "activation": "ReLU",
+    "dropout_comparison": [
+      0.0,
+      0.2
+    ],
+    "epochs": 30,
+    "batch_size": 4096,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "seed": 2026,
+    "device": "cpu",
+    "threads": 4,
+    "classifiers_per_configuration": 2,
+    "preprocessing": "training-only median, numerical standardization and one-hot encoding",
+    "batchnorm": {
+      "locations": "after each hidden Linear, before ReLU and Dropout",
+      "eps": 1e-05,
+      "momentum": 0.1,
+      "affine": true,
+      "track_running_stats": true,
+      "evaluation": "eval mode uses training running statistics"
+    },
+    "factorial_comparison": [
+      {
+        "method": "MLP",
+        "batchnorm": false,
+        "dropout": 0.0,
+        "residual": false
+      },
+      {
+        "method": "MLP_Dropout",
+        "batchnorm": false,
+        "dropout": 0.2,
+        "residual": false
+      },
+      {
+        "method": "MLP_BatchNorm",
+        "batchnorm": true,
+        "dropout": 0.0,
+        "residual": false
+      },
+      {
+        "method": "MLP_BatchNorm_Dropout",
+        "batchnorm": true,
+        "dropout": 0.2,
+        "residual": false
+      },
+      {
+        "method": "MLP_Res",
+        "batchnorm": false,
+        "dropout": 0.0,
+        "residual": true
+      },
+      {
+        "method": "MLP_Dropout_Res",
+        "batchnorm": false,
+        "dropout": 0.2,
+        "residual": true
+      },
+      {
+        "method": "MLP_BatchNorm_Res",
+        "batchnorm": true,
+        "dropout": 0.0,
+        "residual": true
+      },
+      {
+        "method": "MLP_BatchNorm_Dropout_Res",
+        "batchnorm": true,
+        "dropout": 0.2,
+        "residual": true
+      }
+    ],
+    "residual_connection": {
+      "source": "first hidden module output, width 128",
+      "main_branch": "Linear(128,64), optional BatchNorm, ReLU, optional Dropout",
+      "addition": "after the second module activation and Dropout, before the final output Linear",
+      "projection": {
+        "input_features": 128,
+        "output_features": 64,
+        "bias": false,
+        "additional_parameters": 8192,
+        "seed": 12026
+      },
+      "main_initialization_and_dropout_rng": "same seed 2026 and preserved RNG as corresponding non-residual models",
+      "scope": "projected shortcut variant of a two-hidden-layer MLP"
+    }
+  },
+  "modules": {
+    "backbone": "CatBoost selected in the earlier seven-configuration comparison, fixed before the BatchNorm extension",
+    "views": [
+      "background",
+      "vitals",
+      "laboratory"
+    ],
+    "comparisons": [
+      "full-feature single model",
+      "equal-weight three-view ensemble",
+      "task-specific three-view weights"
+    ],
+    "weight_constraints": "nonnegative weights summing to one per outcome",
+    "weight_training": "minimize binary cross-entropy on three-fold inner OOF predictions inside each outer fitting partition",
+    "fixed_fusion_backbone": "CatBoost",
+    "parent_fusion_results": "reuse the verified equal and task-specific CatBoost results on the same folds"
+  },
+  "fitting_budget": {
+    "new_neural_cv_classifiers": 40,
+    "new_final_classifiers_maximum": 2,
+    "reused_parent_cv_and_inner_classifiers": 210
+  },
+  "evaluation": {
+    "cv": [
+      "auc_A",
+      "auc_R",
+      "macro_auc",
+      "training_seconds",
+      "prediction_seconds_per_10000"
+    ],
+    "holdout": [
+      "roc_auc",
+      "sensitivity",
+      "specificity",
+      "tp",
+      "fp",
+      "tn",
+      "fn",
+      "locked_thresholds"
+    ],
+    "auc_bootstrap_repetitions": 1000,
+    "threshold_stage": "selected configuration pooled OOF only, after model selection",
+    "holdout_scope": "same-source supplemental data previously evaluated in exploration"
+  },
+  "prior_result_awareness": "Residual extension authorized after earlier CV, same-source and platform results were known."
+}

@@ -1,0 +1,113 @@
+{
+  "version": "course-simplified-2026-11-12",
+  "objective": "Compare five conventional ML algorithms for two emergency outcomes",
+  "source_kind": "fully synthetic clinical tabular data",
+  "unit": "encounter",
+  "patient_identifier": null,
+  "datasets": {
+    "development": {
+      "file": "train.csv",
+      "rows": 700000
+    },
+    "same_source_holdout": {
+      "file": "supplemental_data.csv",
+      "rows": 100000,
+      "prior_exploratory_evaluation": true
+    },
+    "kaggle_hidden_test": {
+      "file": "test.csv",
+      "rows": 200000
+    }
+  },
+  "targets": [
+    "adverse_outcome",
+    "readmission_30d"
+  ],
+  "models": [
+    "LogisticRegression",
+    "RandomForest",
+    "XGBoost",
+    "LightGBM",
+    "CatBoost"
+  ],
+  "feature_count": 93,
+  "categorical_feature_count": 14,
+  "feature_contract_source": "./configs/baseline_features.json",
+  "cv": {
+    "folds": 5,
+    "seed": 2026,
+    "stratification": "2*adverse_outcome + readmission_30d",
+    "selection": "arithmetic mean of fold macro ROC-AUC",
+    "tie_break": "lower mean preprocessing plus classifier fitting time on exact equality",
+    "oof_probabilities": "saved for each encounter and outcome"
+  },
+  "threshold_stage": {
+    "when": "after algorithm family selection",
+    "data": "selected family pooled OOF probabilities from development data",
+    "criterion": "maximize Sensitivity + Specificity - 1 separately for each outcome",
+    "ties": "smallest finite probability threshold in [0,1]",
+    "positive_rule": "probability >= threshold"
+  },
+  "final_fit": {
+    "records": 700000,
+    "binary_classifiers": 2,
+    "predicted_datasets": [
+      "same_source_holdout",
+      "kaggle_hidden_test"
+    ]
+  },
+  "fitting_budget": {
+    "cv_classifier_fits": 50,
+    "final_classifier_fits": 2,
+    "total_classifier_fits": 52
+  },
+  "time_metrics": {
+    "threads": 4,
+    "priority": "nice 10 when executed on approved server",
+    "training": "fold preprocessing fit/transform for training plus two classifier fits",
+    "prediction": "fold validation preprocessing transform plus two probability predictions",
+    "prediction_reporting": "amortized seconds per 10000 validation encounters",
+    "disk_io": "outside measured intervals"
+  },
+  "evaluation": {
+    "cv": [
+      "AUC_A",
+      "AUC_R",
+      "macro_auc",
+      "training_seconds",
+      "prediction_seconds_per_10000"
+    ],
+    "selected_holdout": [
+      "AUC_A",
+      "AUC_R",
+      "sensitivity",
+      "specificity",
+      "f1",
+      "locked_thresholds",
+      "confusion_counts"
+    ],
+    "holdout_auc_ci": {
+      "bootstrap_repetitions": 1000,
+      "unit": "encounter",
+      "interval": "percentile 95%",
+      "conditional_on_fitted_models": true
+    },
+    "kaggle": [
+      "official_metric_name",
+      "public_or_private_score",
+      "submission_timestamp",
+      "same_board_leader_score",
+      "score_difference"
+    ]
+  },
+  "submission_columns": [
+    "encounter_id",
+    "adverse_outcome",
+    "readmission_30d"
+  ],
+  "kaggle_submission_status_check": "verify active or post-competition submission mode at actual submission time",
+  "implementation_status": "authorized execution",
+  "run_id": "cf_ml_course_20261112_122114",
+  "source_plan_sha256": "43c1f2164f0e591b4a8e7e81c1eade202eb6e67d32766b365afe3f4c0bf5c7b8",
+  "preprocessing_source_sha256": "4b2da553cdd7399dd270c0a64cf10d30ea15d1d86a989a189740613875a85fd7"
+}

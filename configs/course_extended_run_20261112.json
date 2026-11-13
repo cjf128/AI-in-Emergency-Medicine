@@ -1,0 +1,95 @@
+{
+  "version": "course-extension-2026-11-12-v1",
+  "run_id": "cf_ml_course_extended_20261112_173854",
+  "parent_run_id": "cf_ml_course_20261112_122114",
+  "user_authorization": "MLP/Dropout plus multiview and task-specific fusion ablations",
+  "targets": [
+    "adverse_outcome",
+    "readmission_30d"
+  ],
+  "models": [
+    "LogisticRegression",
+    "RandomForest",
+    "XGBoost",
+    "LightGBM",
+    "CatBoost",
+    "MLP",
+    "MLP_Dropout",
+    "MultiviewEqual",
+    "TaskSpecificFusion"
+  ],
+  "feature_count": 93,
+  "categorical_feature_count": 14,
+  "cv": {
+    "folds": 5,
+    "seed": 2026,
+    "inner_folds_for_fusion": 3,
+    "fold_manifest_source": "parent development_folds.parquet",
+    "selection": "mean fold Macro AUC; exact tie then lower mean training seconds"
+  },
+  "neural": {
+    "hidden_layers": [
+      128,
+      64
+    ],
+    "activation": "ReLU",
+    "dropout_comparison": [
+      0.0,
+      0.2
+    ],
+    "epochs": 30,
+    "batch_size": 4096,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "seed": 2026,
+    "device": "cpu",
+    "threads": 4,
+    "classifiers_per_configuration": 2,
+    "preprocessing": "training-only median, numerical standardization and one-hot encoding"
+  },
+  "modules": {
+    "backbone": "best common-fold single-model configuration among seven candidates",
+    "views": [
+      "background",
+      "vitals",
+      "laboratory"
+    ],
+    "comparisons": [
+      "full-feature single model",
+      "equal-weight three-view ensemble",
+      "task-specific three-view weights"
+    ],
+    "weight_constraints": "nonnegative weights summing to one per outcome",
+    "weight_training": "minimize binary cross-entropy on three-fold inner OOF predictions inside each outer fitting partition"
+  },
+  "fitting_budget": {
+    "new_neural_cv_classifiers": 20,
+    "new_inner_view_classifiers": 90,
+    "new_outer_view_classifiers": 30,
+    "new_final_classifiers_maximum": 6,
+    "reused_parent_cv_classifiers": 50
+  },
+  "evaluation": {
+    "cv": [
+      "auc_A",
+      "auc_R",
+      "macro_auc",
+      "training_seconds",
+      "prediction_seconds_per_10000"
+    ],
+    "holdout": [
+      "roc_auc",
+      "sensitivity",
+      "specificity",
+      "tp",
+      "fp",
+      "tn",
+      "fn",
+      "locked_thresholds"
+    ],
+    "auc_bootstrap_repetitions": 1000,
+    "threshold_stage": "selected configuration pooled OOF only, after model selection",
+    "holdout_scope": "same-source supplemental data previously evaluated in exploration"
+  }
+}

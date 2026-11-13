@@ -1,0 +1,67 @@
+{
+  "protocol_version": "2026-11-09.1",
+  "plan_sha256": "daba2df1c77f66796acd53d02c9954cf3aa4f515a4b5f7a809f17c33b82b4532",
+  "dataset_kind": "kaggle_synthetic_clinical",
+  "competition": "ai-emergency-medicine-turkiye",
+  "source_url": "https://www.kaggle.com/competitions/ai-emergency-medicine-turkiye/data",
+  "raw_directory": "data/raw",
+  "processed_directory": "data/processed",
+  "audit_directory": "outputs/data_audit",
+  "id_column": "encounter_id",
+  "target_columns": [
+    "adverse_outcome",
+    "readmission_30d"
+  ],
+  "year_column": null,
+  "year_candidates": [
+    "arrival_year",
+    "year",
+    "encounter_year"
+  ],
+  "patient_id_column": null,
+  "patient_id_candidates": [
+    "patient_id"
+  ],
+  "development_years": [
+    2019,
+    2020,
+    2021,
+    2022
+  ],
+  "temporal_test_years": [
+    2023,
+    2024
+  ],
+  "outer_folds": 5,
+  "inner_folds": 3,
+  "calibration_fraction": 0.2,
+  "random_seed": 2026,
+  "threads": 4,
+  "pilot_max_rows": 50000,
+  "missing_indicator_columns": [
+    "troponin_i_ngml",
+    "bnp_pgl",
+    "d_dimer_mgfl",
+    "lactate_mmoll",
+    "lipase_ul",
+    "procalcitonin_ngl",
+    "albumin_gdl"
+  ],
+  "expected_rows": {
+    "train.csv": 700000,
+    "test.csv": 200000,
+    "supplemental_data.csv": 100000,
+    "sample_submission.csv": 200000
+  },
+  "expected_files": [
+    "train.csv",
+    "test.csv",
+    "supplemental_data.csv",
+    "sample_submission.csv",
+    "hospital_reference.csv",
+    "icd10_reference.csv"
+  ],
+  "temporal_test_policy": "Target values in the temporal test set are reserved for the locked final evaluation.",
+  "manifest_subdirectory": "manifests",
+  "active_release_pointer": "configs/active_data_release.json"
+}
